@@ -8,14 +8,23 @@ public class RandomSpawner : MonoBehaviour
     [SerializeField] private Vector2 sizeRange = new Vector2(0.5f, 2f); // Min and max size
     [SerializeField] private float minSpeed = 2f; // Minimum movement speed
     [SerializeField] private float maxSpeed = 5f; // Maximum movement speed
-    [SerializeField] private float spawnInterval = 2f; // Time between spawns
+    [SerializeField] private float initialSpawnInterval = 2f; // Initial time between spawns
+    [SerializeField] private float spawnIntervalDecreaseRate = 0.1f; // Amount to decrease interval by
+    [SerializeField] private float minSpawnInterval = 0.5f; // Minimum allowed interval
 
     private Camera mainCamera;
+    private float currentSpawnInterval;
 
     private void Start()
     {
         mainCamera = Camera.main; // Reference to the main camera
-        InvokeRepeating(nameof(SpawnObject), 0f, spawnInterval); // Repeatedly spawn objects
+        currentSpawnInterval = initialSpawnInterval;
+
+        // Start spawning objects
+        InvokeRepeating(nameof(SpawnObject), 0f, currentSpawnInterval);
+
+        // Start decreasing the spawn interval every 10 seconds
+        InvokeRepeating(nameof(DecreaseSpawnInterval), 10f, 10f);
     }
 
     private void SpawnObject()
@@ -64,5 +73,17 @@ public class RandomSpawner : MonoBehaviour
             default:
                 return Vector3.zero; // Fallback, shouldn't happen
         }
+    }
+
+    private void DecreaseSpawnInterval()
+    {
+        // Cancel existing spawns
+        CancelInvoke(nameof(SpawnObject));
+
+        // Decrease the interval, ensuring it doesn't go below the minimum
+        currentSpawnInterval = Mathf.Max(minSpawnInterval, currentSpawnInterval - spawnIntervalDecreaseRate);
+
+        // Restart spawning with the new interval
+        InvokeRepeating(nameof(SpawnObject), 0f, currentSpawnInterval);
     }
 }

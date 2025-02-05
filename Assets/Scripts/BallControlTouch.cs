@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class BallControlTouch : MonoBehaviour
 {
-    private Vector3 offset; // To calculate the touch offset
-    private bool isDragging = false;
+    [SerializeField] private float moveSpeed = 5f; // Speed at which the ball moves towards the touch position
+
+    private Vector3 targetPosition; // Position to move towards
+    private bool isTouching = false;
 
     void Update()
     {
@@ -14,22 +16,21 @@ public class BallControlTouch : MonoBehaviour
             Vector3 touchPosition = Camera.main.ScreenToWorldPoint(touch.position); // Convert screen to world position
             touchPosition.z = 0; // Ensure the z-coordinate remains 0 for 2D
 
-            if (touch.phase == TouchPhase.Began) // When the touch starts
+            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved) // On touch or drag
             {
-                if (Vector2.Distance(transform.position, touchPosition) < 0.5f) // Check if touch is near the ball
-                {
-                    isDragging = true;
-                    offset = transform.position - touchPosition;
-                }
+                targetPosition = touchPosition; // Update target position
+                isTouching = true;
             }
-            else if (touch.phase == TouchPhase.Moved && isDragging) // During dragging
+            else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) // When touch ends
             {
-                transform.position = touchPosition + offset; // Move the ball along with the touch
+                isTouching = false;
             }
-            else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) // When the touch ends
-            {
-                isDragging = false;
-            }
+        }
+
+        // Smoothly move the ball to the target position if there's an active touch
+        if (isTouching)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
         }
     }
 }
