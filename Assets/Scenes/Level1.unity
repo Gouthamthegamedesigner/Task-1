@@ -1193,9 +1193,9 @@ MonoBehaviour:
   sizeRange: {x: 0.03, y: 0.03}
   minSpeed: 1
   maxSpeed: 3
-  initialSpawnInterval: 2
+  initialSpawnInterval: 3
   spawnIntervalDecreaseRate: 0.1
-  minSpawnInterval: 0.9
+  minSpawnInterval: 1
 --- !u!4 &2103143468
 Transform:
   m_ObjectHideFlags: 0
